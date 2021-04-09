@@ -13,7 +13,7 @@ const app = express()
 
 app.use(cors())
 app.use(bodyParser.json())
-const port = 5000
+const port = 5000;
 
 app.get('/', (req, res) => {
   res.send("Hello from db it's working working!")
@@ -28,21 +28,18 @@ client.connect(err => {
     
   app.post('/addProduct', (req, res) => {
         const products = req.body;
-        // console.log(product);
         productsCollection.insertOne(products)
         .then(result => {
-            // console.log(result);
-            console.log(result.insertedCount);
             res.send(result.insertedCount);
         })
     })
     app.get('/products', (req, res) => {
-        productsCollection.find({})
+        const search = req.query.search;
+        productsCollection.find({name: {$regex: search}})
         .toArray((err, documents) => {
             res.send(documents);
         })
     })
-    ////////////// second step
     app.get('/product/:key', (req, res) => {
         productsCollection.find({key: req.params.key})
         .toArray((err, documents) => {
@@ -64,15 +61,10 @@ client.connect(err => {
             res.send(result.insertedCount > 0);
         })
     })
-
-  //   console.log('database connected');
-//   client.close();
 });
 
-
-// console.log(process.env.DB_USER);
-// app.get('/', (req, res) => {
-//   res.send('Hello World!')
-// })
+app.get('/', (req, res) => {
+  res.send('Hello World!')
+})
 
 app.listen(process.env.PORT || port)
